@@ -1,0 +1,38 @@
+📌 1. Funcionalidades desejadas:
+* Organização de tarefas, agenda e compromissos estratégicos.
+* Filtragem e priorização de mensagens recebidas  (WhatsApp, Telegram, e-mail, Instagram).
+* Sugestão e acompanhamento de execuções baseadas em prazos e objetivos.
+* Geração de conteúdo com visão estratégica multicanal (Flow 360).
+* Apoio à tomada de decisão (com base em dados e contexto).
+* Memória contextual e capacidade de retomar assuntos e projetos.
+* Proatividade para lembrar pendências e sugerir próximas ações.
+* Redação de posts, campanhas e microplanejamentos automatizados.
+* Integração com Google Agenda, Telegram, CRM (ConvertKit ou Notion) e canais de atendimento.
+
+💼 2. Caso de uso principal:
+Assessor executivo estratégico digital, focado em atendimento interno (gestão de tempo, prioridades, decisões, e conteúdo) com desdobramento em atendimento a clientes que solicitam ações via chat.
+Secundariamente: geração de conteúdo para posts, landing pages e campanhas com foco em autoridade e vendas.
+
+🔗 3. Integração com serviços existentes da FlowOFF:
+* Telegram (canal de uso diário para interação com a IA).
+* Google Calendar (gestão de compromissos).
+* WhatsApp
+* CRM interno para acompanhamento de funil de vendas.
+
+⚙️ 4. Tecnologia ou plataforma preferida:
+* Back-end: Node.js ou Python
+* IA base:tenho Ollama no Mac com instruções personalizadas
+* Front-end / Interface: Telegram e Web (chat personalizado via script)
+* Preferência por sistema no-code/low-code com alta customização
+
+📁 5. Tipos de dados que a IA precisará acessar:
+* Agenda de compromissos (Google Calendar ou API equivalente).
+* Projetos e tarefas pendentes (Notion/CRM/Planilha).
+* Dados de clientes e contatos (nome, histórico de interação, status no funil).
+* Histórico de conteúdo gerado e postagens anteriores.
+* Acesso ao contexto de reuniões, briefings ou objetivos estratégicos.
+* Regras e metodologia Flow 360 (para geração de conteúdo estratégico).
+
+💬 6. Preferência de interface do usuário:
+* Whatsapp
+* Secundário: integração com IA do Instagram e CRM interno
