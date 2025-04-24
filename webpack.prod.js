@@ -15,7 +15,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: 'static/js/[name].[contenthash:8].js',
     chunkFilename: 'static/js/[name].[contenthash:8].chunk.js',
-    publicPath: '/',
+    publicPath: './',
     clean: true
   },
   optimization: {
@@ -135,6 +135,9 @@ module.exports = {
         minifyCSS: true,
         minifyURLs: true,
       },
+      templateParameters: {
+        PUBLIC_URL: './'
+      }
     }),
     new MiniCssExtractPlugin({
       filename: 'static/css/[name].[contenthash:8].css',
