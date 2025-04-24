@@ -7,6 +7,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
   mode: 'production',
@@ -32,7 +33,8 @@ module.exports = {
             comparisons: false,
             inline: 2,
             drop_console: true,
-            drop_debugger: true
+            drop_debugger: true,
+            pure_funcs: ['console.log', 'console.info', 'console.debug']
           },
           mangle: {
             safari10: true,
@@ -51,6 +53,9 @@ module.exports = {
             'default',
             {
               discardComments: { removeAll: true },
+              normalizeWhitespace: true,
+              minifyFontValues: true,
+              minifyGradients: true
             },
           ],
         },
@@ -64,7 +69,22 @@ module.exports = {
           test: /[\\/]node_modules[\\/]/,
           name: 'vendors',
           chunks: 'all',
+          priority: 10
         },
+        common: {
+          name: 'common',
+          minChunks: 2,
+          chunks: 'all',
+          priority: 5,
+          reuseExistingChunk: true
+        },
+        styles: {
+          name: 'styles',
+          test: /\.css$/,
+          chunks: 'all',
+          enforce: true,
+          priority: 20
+        }
       },
     },
     runtimeChunk: {
@@ -86,7 +106,11 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             presets: ['@babel/preset-env', ['@babel/preset-react', { runtime: 'automatic' }]],
-            cacheDirectory: true
+            cacheDirectory: true,
+            plugins: [
+              '@babel/plugin-syntax-dynamic-import',
+              '@babel/plugin-proposal-class-properties'
+            ]
           },
         },
       },
@@ -98,6 +122,10 @@ module.exports = {
             loader: 'css-loader',
             options: {
               importLoaders: 1,
+              modules: {
+                auto: true,
+                localIdentName: '[hash:base64:8]'
+              }
             },
           },
         ],
@@ -160,7 +188,8 @@ module.exports = {
       safe: false,
       defaults: true
     }),
-  ],
+    process.env.ANALYZE && new BundleAnalyzerPlugin()
+  ].filter(Boolean),
   performance: {
     maxEntrypointSize: 512000,
     maxAssetSize: 512000,
