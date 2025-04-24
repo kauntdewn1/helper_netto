@@ -28,7 +28,8 @@ import {
   ListItemSecondaryAction,
   Checkbox,
   Tooltip,
-  Menu
+  Menu,
+  Alert
 } from '@mui/material';
 import { 
   Add as AddIcon,
@@ -41,7 +42,11 @@ import {
   RadioButtonUnchecked as RadioButtonUncheckedIcon,
   Flag as FlagIcon,
   Today as TodayIcon,
-  AccessTime as AccessTimeIcon
+  AccessTime as AccessTimeIcon,
+  Schedule as ScheduleIcon,
+  Person as PersonIcon,
+  Check as CheckIcon,
+  Close as CloseIcon
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 
@@ -52,15 +57,27 @@ const TasksContainer = styled(Paper)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.25)',
   height: 'calc(100vh - 180px)',
-  overflow: 'hidden',
-  display: 'flex',
-  flexDirection: 'column'
+  overflow: 'auto'
 }));
 
-const TasksList = styled(List)(({ theme }) => ({
-  overflow: 'auto',
-  flexGrow: 1,
-  padding: 0
+const TaskItem = styled(ListItem)(({ theme, completed }) => ({
+  backgroundColor: completed ? theme.palette.action.hover : 'transparent',
+  borderRadius: theme.shape.borderRadius,
+  marginBottom: theme.spacing(1),
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover
+  }
+}));
+
+const PriorityChip = styled(Chip)(({ theme, priority }) => ({
+  backgroundColor: 
+    priority === 'high' ? theme.palette.error.main :
+    priority === 'medium' ? theme.palette.warning.main :
+    theme.palette.success.main,
+  color: theme.palette.common.white,
+  '& .MuiChip-label': {
+    color: theme.palette.common.white
+  }
 }));
 
 // Dados simulados
@@ -512,5 +529,12 @@ const Tasks = () => {
         <MenuItem onClick={() => handlePriorityFilter('medium')} selected={selectedPriority === 'medium'}>
           Média
         </MenuItem>
-        <MenuItem onClick={() => handlePriorityFilter('low')} selected={selectedP
-(Content truncated due to size limit. Use line ranges to read in chunks)
+        <MenuItem onClick={() => handlePriorityFilter('low')} selected={selectedPriority === 'low'}>
+          Baixa
+        </MenuItem>
+      </Menu>
+    </Box>
+  );
+};
+
+export default Tasks;

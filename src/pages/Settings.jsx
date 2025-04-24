@@ -28,7 +28,7 @@ import {
   DialogContentText,
   DialogActions
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { styled, alpha } from '@mui/material/styles';
 import {
   Person as PersonIcon,
   Notifications as NotificationsIcon,
@@ -64,11 +64,6 @@ const IntegrationCard = styled(Card)(({ theme, connected }) => ({
     boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.15)'
   }
 }));
-
-// Função auxiliar para alpha
-const alpha = (color, opacity) => {
-  return color + opacity.toString(16).padStart(2, '0');
-};
 
 const Settings = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -486,5 +481,152 @@ const Settings = () => {
                   startIcon={<SaveIcon />}
                   onClick={handleSaveSettings}
                 >
-     
-(Content truncated due to size limit. Use line ranges to read in chunks)
+                  Salvar Alterações
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        )}
+        
+        {/* Integrações */}
+        {tabValue === 3 && (
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              Integrações
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <IntegrationCard connected={settings.integrations.telegram}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <TelegramIcon sx={{ mr: 1 }} />
+                      <Typography variant="h6">Telegram</Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Receba notificações e comandos via Telegram
+                    </Typography>
+                  </CardContent>
+                  <CardHeader
+                    action={
+                      <Switch
+                        checked={settings.integrations.telegram}
+                        onChange={handleSettingChange('integrations', 'telegram')}
+                      />
+                    }
+                  />
+                </IntegrationCard>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <IntegrationCard connected={settings.integrations.whatsapp}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <WhatsAppIcon sx={{ mr: 1 }} />
+                      <Typography variant="h6">WhatsApp</Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Receba notificações e comandos via WhatsApp
+                    </Typography>
+                  </CardContent>
+                  <CardHeader
+                    action={
+                      <Switch
+                        checked={settings.integrations.whatsapp}
+                        onChange={handleSettingChange('integrations', 'whatsapp')}
+                      />
+                    }
+                  />
+                </IntegrationCard>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <IntegrationCard connected={settings.integrations.googleCalendar}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <GoogleIcon sx={{ mr: 1 }} />
+                      <Typography variant="h6">Google Calendar</Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Sincronize seus eventos com o Google Calendar
+                    </Typography>
+                  </CardContent>
+                  <CardHeader
+                    action={
+                      <Switch
+                        checked={settings.integrations.googleCalendar}
+                        onChange={handleSettingChange('integrations', 'googleCalendar')}
+                      />
+                    }
+                  />
+                </IntegrationCard>
+              </Grid>
+            </Grid>
+          </Box>
+        )}
+        
+        {/* Aparência */}
+        {tabValue === 4 && (
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              Preferências de Aparência
+            </Typography>
+            <List>
+              <ListItem>
+                <ListItemText 
+                  primary="Modo Escuro" 
+                  secondary="Ativar tema escuro"
+                />
+                <ListItemSecondaryAction>
+                  <Switch
+                    edge="end"
+                    checked={settings.appearance.darkMode}
+                    onChange={handleSettingChange('appearance', 'darkMode')}
+                  />
+                </ListItemSecondaryAction>
+              </ListItem>
+              <ListItem>
+                <ListItemText 
+                  primary="Visualização Compacta" 
+                  secondary="Reduzir espaçamento entre elementos"
+                />
+                <ListItemSecondaryAction>
+                  <Switch
+                    edge="end"
+                    checked={settings.appearance.compactView}
+                    onChange={handleSettingChange('appearance', 'compactView')}
+                  />
+                </ListItemSecondaryAction>
+              </ListItem>
+            </List>
+          </Box>
+        )}
+        
+        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<SaveIcon />}
+            onClick={handleSaveSettings}
+          >
+            Salvar Configurações
+          </Button>
+        </Box>
+      </SettingsContainer>
+      
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Confirmar Alterações</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Tem certeza que deseja salvar as alterações?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cancelar</Button>
+          <Button onClick={handleSaveSettings} variant="contained" color="primary">
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+};
+
+export default Settings;
