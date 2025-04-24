@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "IA Assistente para consultorias de marketing digital",
   "main": "server.js",
+  "engines": {
+    "node": "18.17.0",
+    "npm": "9.6.7"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
@@ -59,9 +63,6 @@
     "webpack-bundle-analyzer": "^4.8.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.0"
-  },
-  "engines": {
-    "node": ">=14.0.0"
   },
   "author": "FlowOFF",
   "license": "ISC"
