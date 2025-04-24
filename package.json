@@ -12,7 +12,8 @@
     "test": "jest",
     "lint": "eslint .",
     "backup": "node backup.js",
-    "postinstall": "npm run build"
+    "postinstall": "npm run build",
+    "prod": "NODE_ENV=production node server.js"
   },
   "dependencies": {
     "@emotion/react": "^11.11.0",
