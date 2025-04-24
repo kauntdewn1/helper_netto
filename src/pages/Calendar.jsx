@@ -17,7 +17,7 @@ import {
   MenuItem,
   Tooltip
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { styled, alpha } from '@mui/material/styles';
 import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
@@ -121,10 +121,6 @@ const getFirstDayOfMonth = (year, month) => {
 
 const getLastDayOfPrevMonth = (year, month) => {
   return new Date(year, month, 0).getDate();
-};
-
-const alpha = (color, opacity) => {
-  return color + opacity.toString(16).padStart(2, '0');
 };
 
 // Dados simulados
@@ -248,48 +244,47 @@ const Calendar = () => {
   
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setSelectedDate(null);
     setSelectedEvent(null);
+    setSelectedDate(null);
   };
   
   const handleCreateEvent = () => {
-    const startTime = new Date(newEvent.startTime);
-    const endTime = new Date(newEvent.endTime);
-    
-    const event = {
-      id: selectedEvent ? selectedEvent.id : events.length + 1,
-      ...newEvent,
-      startTime,
-      endTime
-    };
-    
     if (selectedEvent) {
       // Atualizar evento existente
-      setEvents(events.map(e => e.id === selectedEvent.id ? event : e));
+      const updatedEvents = events.map(event => 
+        event.id === selectedEvent.id 
+          ? { ...event, ...newEvent }
+          : event
+      );
+      setEvents(updatedEvents);
     } else {
       // Criar novo evento
-      setEvents([...events, event]);
+      const newEventWithId = {
+        ...newEvent,
+        id: events.length + 1,
+        startTime: new Date(newEvent.startTime),
+        endTime: new Date(newEvent.endTime)
+      };
+      setEvents([...events, newEventWithId]);
     }
-    
     handleCloseDialog();
   };
   
   const handleDeleteEvent = () => {
     if (selectedEvent) {
-      setEvents(events.filter(e => e.id !== selectedEvent.id));
+      setEvents(events.filter(event => event.id !== selectedEvent.id));
       handleCloseDialog();
     }
   };
   
   const handleEventChange = (e) => {
     const { name, value } = e.target;
-    setNewEvent({
-      ...newEvent,
+    setNewEvent(prev => ({
+      ...prev,
       [name]: value
-    });
+    }));
   };
   
-  // Renderizar calendário mensal
   const renderMonthCalendar = () => {
     const daysInMonth = getDaysInMonth(currentYear, currentMonth);
     const firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);
@@ -301,240 +296,211 @@ const Calendar = () => {
     for (let i = firstDayOfMonth - 1; i >= 0; i--) {
       const day = lastDayOfPrevMonth - i;
       const date = new Date(currentYear, currentMonth - 1, day);
-      days.push({ date, isCurrentMonth: false });
+      days.push(
+        <DayCell 
+          key={`prev-${day}`} 
+          isCurrentMonth={false}
+          isToday={false}
+          onClick={() => handleDateClick(date)}
+        >
+          <DayNumber>{day}</DayNumber>
+        </DayCell>
+      );
     }
     
     // Dias do mês atual
-    for (let i = 1; i <= daysInMonth; i++) {
-      const date = new Date(currentYear, currentMonth, i);
-      days.push({ date, isCurrentMonth: true });
-    }
-    
-    // Dias do próximo mês (para completar a grade)
-    const remainingDays = 42 - days.length; // 6 semanas * 7 dias = 42
-    for (let i = 1; i <= remainingDays; i++) {
-      const date = new Date(currentYear, currentMonth + 1, i);
-      days.push({ date, isCurrentMonth: false });
-    }
-    
-    // Dias da semana
-    const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-    
-    return (
-      <>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', mb: 1 }}>
-          {weekDays.map((day, index) => (
-            <Box 
-              key={index} 
-              sx={{ 
-                textAlign: 'center', 
-                py: 1,
-                fontWeight: 'medium',
-                color: 'text.secondary'
-              }}
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(currentYear, currentMonth, day);
+      const isToday = date.toDateString() === today.toDateString();
+      const dayEvents = events.filter(event => 
+        event.startTime.getDate() === day &&
+        event.startTime.getMonth() === currentMonth &&
+        event.startTime.getFullYear() === currentYear
+      );
+      
+      days.push(
+        <DayCell 
+          key={day} 
+          isCurrentMonth={true}
+          isToday={isToday}
+          hasEvents={dayEvents.length > 0}
+          onClick={() => handleDateClick(date)}
+        >
+          <DayNumber isToday={isToday}>{day}</DayNumber>
+          {dayEvents.map(event => (
+            <EventChip 
+              key={event.id}
+              priority={event.priority}
+              onClick={(e) => handleEventClick(event, e)}
             >
-              {day}
-            </Box>
+              {event.title}
+            </EventChip>
           ))}
-        </Box>
-        
-        <CalendarGrid>
-          {days.map(({ date, isCurrentMonth }, index) => {
-            const isToday = date.toDateString() === today.toDateString();
-            
-            // Filtrar eventos para este dia
-            const dayEvents = events.filter(event => 
-              event.startTime.getDate() === date.getDate() &&
-              event.startTime.getMonth() === date.getMonth() &&
-              event.startTime.getFullYear() === date.getFullYear()
-            );
-            
-            return (
-              <DayCell 
-                key={index} 
-                isToday={isToday} 
-                isCurrentMonth={isCurrentMonth}
-                hasEvents={dayEvents.length > 0}
-                onClick={() => handleDateClick(date)}
-              >
-                <DayNumber variant="body2" isToday={isToday}>
-                  {date.getDate()}
-                </DayNumber>
-                
-                <Box sx={{ mt: 4 }}>
-                  {dayEvents.map(event => (
-                    <EventChip 
-                      key={event.id} 
-                      priority={event.priority}
-                      onClick={(e) => handleEventClick(event, e)}
-                    >
-                      {`${event.startTime.getHours().toString().padStart(2, '0')}:${event.startTime.getMinutes().toString().padStart(2, '0')} ${event.title}`}
-                    </EventChip>
-                  ))}
-                </Box>
-              </DayCell>
-            );
-          })}
-        </CalendarGrid>
-      </>
-    );
+        </DayCell>
+      );
+    }
+    
+    // Dias do próximo mês
+    const remainingDays = 42 - days.length; // 6 semanas * 7 dias
+    for (let day = 1; day <= remainingDays; day++) {
+      const date = new Date(currentYear, currentMonth + 1, day);
+      days.push(
+        <DayCell 
+          key={`next-${day}`} 
+          isCurrentMonth={false}
+          isToday={false}
+          onClick={() => handleDateClick(date)}
+        >
+          <DayNumber>{day}</DayNumber>
+        </DayCell>
+      );
+    }
+    
+    return days;
   };
   
   return (
-    <Box sx={{ flexGrow: 1, py: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
-          Calendário
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => handleDateClick(today)}
-        >
-          Novo Evento
-        </Button>
-      </Box>
-      
-      <CalendarContainer>
-        <CalendarHeader>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={handlePrevMonth}>
-              <ChevronLeftIcon />
-            </IconButton>
-            <Typography variant="h6" sx={{ mx: 2 }}>
-              {currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
-            </Typography>
-            <IconButton onClick={handleNextMonth}>
-              <ChevronRightIcon />
-            </IconButton>
-            <Button 
-              variant="outlined" 
-              size="small" 
-              startIcon={<TodayIcon />}
-              onClick={() => setCurrentDate(today)}
-              sx={{ ml: 2 }}
-            >
-              Hoje
-            </Button>
-          </Box>
-          
-          <Box>
-            <Tooltip title="Dia">
-              <IconButton 
-                color={currentView === 'day' ? 'primary' : 'default'} 
-                onClick={() => handleViewChange('day')}
-              >
-                <ViewDayIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Semana">
-              <IconButton 
-                color={currentView === 'week' ? 'primary' : 'default'} 
-                onClick={() => handleViewChange('week')}
-              >
-                <ViewWeekIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Mês">
-              <IconButton 
-                color={currentView === 'month' ? 'primary' : 'default'} 
-                onClick={() => handleViewChange('month')}
-              >
-                <ViewMonthIcon />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </CalendarHeader>
+    <CalendarContainer>
+      <CalendarHeader>
+        <Box>
+          <IconButton onClick={handlePrevMonth}>
+            <ChevronLeftIcon />
+          </IconButton>
+          <Typography variant="h5" component="h2" sx={{ display: 'inline-block', mx: 2 }}>
+            {currentDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}
+          </Typography>
+          <IconButton onClick={handleNextMonth}>
+            <ChevronRightIcon />
+          </IconButton>
+        </Box>
         
-        {currentView === 'month' && renderMonthCalendar()}
-        {currentView === 'week' && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <Typography variant="body1" color="text.secondary">
-              Visualização semanal será implementada em breve
-            </Typography>
-          </Box>
-        )}
-        {currentView === 'day' && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <Typography variant="body1" color="text.secondary">
-              Visualização diária será implementada em breve
-            </Typography>
-          </Box>
-        )}
-      </CalendarContainer>
+        <Box>
+          <Tooltip title="Dia">
+            <IconButton 
+              onClick={() => handleViewChange('day')}
+              color={currentView === 'day' ? 'primary' : 'default'}
+            >
+              <ViewDayIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Semana">
+            <IconButton 
+              onClick={() => handleViewChange('week')}
+              color={currentView === 'week' ? 'primary' : 'default'}
+            >
+              <ViewWeekIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Mês">
+            <IconButton 
+              onClick={() => handleViewChange('month')}
+              color={currentView === 'month' ? 'primary' : 'default'}
+            >
+              <ViewMonthIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Hoje">
+            <IconButton onClick={() => setCurrentDate(today)}>
+              <TodayIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </CalendarHeader>
       
-      {/* Dialog para criar/editar evento */}
+      <CalendarGrid>
+        {renderMonthCalendar()}
+      </CalendarGrid>
+      
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
           {selectedEvent ? 'Editar Evento' : 'Novo Evento'}
         </DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            name="title"
-            label="Título"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={newEvent.title}
-            onChange={handleEventChange}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            name="description"
-            label="Descrição"
-            type="text"
-            fullWidth
-            variant="outlined"
-            multiline
-            rows={3}
-            value={newEvent.description}
-            onChange={handleEventChange}
-            sx={{ mb: 2 }}
-          />
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={12}>
               <TextField
-                margin="dense"
-                name="startTime"
-                label="Início"
-                type="datetime-local"
                 fullWidth
-                variant="outlined"
-                InputLabelProps={{
-                  shrink: true,
-                }}
+                label="Título"
+                name="title"
+                value={newEvent.title}
+                onChange={handleEventChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                label="Descrição"
+                name="description"
+                value={newEvent.description}
+                onChange={handleEventChange}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                fullWidth
+                label="Início"
+                name="startTime"
+                type="datetime-local"
                 value={newEvent.startTime}
                 onChange={handleEventChange}
-                sx={{ mb: 2 }}
+                InputLabelProps={{ shrink: true }}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={6}>
               <TextField
-                margin="dense"
-                name="endTime"
-                label="Fim"
-                type="datetime-local"
                 fullWidth
-                variant="outlined"
-                InputLabelProps={{
-                  shrink: true,
-                }}
+                label="Fim"
+                name="endTime"
+                type="datetime-local"
                 value={newEvent.endTime}
                 onChange={handleEventChange}
-                sx={{ mb: 2 }}
+                InputLabelProps={{ shrink: true }}
               />
             </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Local"
+                name="location"
+                value={newEvent.location}
+                onChange={handleEventChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel>Prioridade</InputLabel>
+                <Select
+                  name="priority"
+                  value={newEvent.priority}
+                  onChange={handleEventChange}
+                  label="Prioridade"
+                >
+                  <MenuItem value="high">Alta</MenuItem>
+                  <MenuItem value="medium">Média</MenuItem>
+                  <MenuItem value="low">Baixa</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
           </Grid>
-          <TextField
-            margin="dense"
-            name="location"
-            label="Local"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={newEvent.location
-(Content truncated due to size limit. Use line ranges to read in chunks)
+        </DialogContent>
+        <DialogActions>
+          {selectedEvent && (
+            <Button onClick={handleDeleteEvent} color="error">
+              Excluir
+            </Button>
+          )}
+          <Button onClick={handleCloseDialog}>
+            Cancelar
+          </Button>
+          <Button onClick={handleCreateEvent} variant="contained" color="primary">
+            {selectedEvent ? 'Salvar' : 'Criar'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </CalendarContainer>
+  );
+};
+
+export default Calendar;
