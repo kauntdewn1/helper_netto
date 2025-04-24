@@ -360,130 +360,177 @@ const Calendar = () => {
   };
   
   return (
-    <CalendarContainer>
-      <CalendarHeader>
-        <Box>
-          <IconButton onClick={handlePrevMonth}>
-            <ChevronLeftIcon />
-          </IconButton>
-          <Typography variant="h5" component="h2" sx={{ display: 'inline-block', mx: 2 }}>
-            {currentDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}
-          </Typography>
-          <IconButton onClick={handleNextMonth}>
-            <ChevronRightIcon />
-          </IconButton>
-        </Box>
-        
-        <Box>
-          <Tooltip title="Dia">
-            <IconButton 
-              onClick={() => handleViewChange('day')}
-              color={currentView === 'day' ? 'primary' : 'default'}
-            >
-              <ViewDayIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Semana">
-            <IconButton 
-              onClick={() => handleViewChange('week')}
-              color={currentView === 'week' ? 'primary' : 'default'}
-            >
-              <ViewWeekIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Mês">
-            <IconButton 
-              onClick={() => handleViewChange('month')}
-              color={currentView === 'month' ? 'primary' : 'default'}
-            >
-              <ViewMonthIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Hoje">
-            <IconButton onClick={() => setCurrentDate(today)}>
-              <TodayIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </CalendarHeader>
+    <Box sx={{ flexGrow: 1, py: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
+          Calendário
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={() => handleDateClick(today)}
+        >
+          Novo Evento
+        </Button>
+      </Box>
       
-      <CalendarGrid>
-        {renderMonthCalendar()}
-      </CalendarGrid>
+      <CalendarContainer>
+        <CalendarHeader>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={handlePrevMonth}>
+              <ChevronLeftIcon />
+            </IconButton>
+            <Typography variant="h6" sx={{ mx: 2 }}>
+              {currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+            </Typography>
+            <IconButton onClick={handleNextMonth}>
+              <ChevronRightIcon />
+            </IconButton>
+            <Button 
+              variant="outlined" 
+              size="small" 
+              startIcon={<TodayIcon />}
+              onClick={() => setCurrentDate(today)}
+              sx={{ ml: 2 }}
+            >
+              Hoje
+            </Button>
+          </Box>
+          
+          <Box>
+            <Tooltip title="Dia">
+              <IconButton 
+                color={currentView === 'day' ? 'primary' : 'default'} 
+                onClick={() => handleViewChange('day')}
+              >
+                <ViewDayIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Semana">
+              <IconButton 
+                color={currentView === 'week' ? 'primary' : 'default'} 
+                onClick={() => handleViewChange('week')}
+              >
+                <ViewWeekIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Mês">
+              <IconButton 
+                color={currentView === 'month' ? 'primary' : 'default'} 
+                onClick={() => handleViewChange('month')}
+              >
+                <ViewMonthIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </CalendarHeader>
+        
+        {currentView === 'month' && renderMonthCalendar()}
+        {currentView === 'week' && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <Typography variant="body1" color="text.secondary">
+              Visualização semanal será implementada em breve
+            </Typography>
+          </Box>
+        )}
+        {currentView === 'day' && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <Typography variant="body1" color="text.secondary">
+              Visualização diária será implementada em breve
+            </Typography>
+          </Box>
+        )}
+      </CalendarContainer>
       
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
           {selectedEvent ? 'Editar Evento' : 'Novo Evento'}
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+          <TextField
+            autoFocus
+            margin="dense"
+            name="title"
+            label="Título"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={newEvent.title}
+            onChange={handleEventChange}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="dense"
+            name="description"
+            label="Descrição"
+            type="text"
+            fullWidth
+            variant="outlined"
+            multiline
+            rows={3}
+            value={newEvent.description}
+            onChange={handleEventChange}
+            sx={{ mb: 2 }}
+          />
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
               <TextField
-                fullWidth
-                label="Título"
-                name="title"
-                value={newEvent.title}
-                onChange={handleEventChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                multiline
-                rows={3}
-                label="Descrição"
-                name="description"
-                value={newEvent.description}
-                onChange={handleEventChange}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                fullWidth
-                label="Início"
+                margin="dense"
                 name="startTime"
+                label="Início"
                 type="datetime-local"
+                fullWidth
+                variant="outlined"
+                InputLabelProps={{
+                  shrink: true,
+                }}
                 value={newEvent.startTime}
                 onChange={handleEventChange}
-                InputLabelProps={{ shrink: true }}
+                sx={{ mb: 2 }}
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
-                fullWidth
-                label="Fim"
+                margin="dense"
                 name="endTime"
+                label="Fim"
                 type="datetime-local"
+                fullWidth
+                variant="outlined"
+                InputLabelProps={{
+                  shrink: true,
+                }}
                 value={newEvent.endTime}
                 onChange={handleEventChange}
-                InputLabelProps={{ shrink: true }}
+                sx={{ mb: 2 }}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Local"
-                name="location"
-                value={newEvent.location}
-                onChange={handleEventChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel>Prioridade</InputLabel>
-                <Select
-                  name="priority"
-                  value={newEvent.priority}
-                  onChange={handleEventChange}
-                  label="Prioridade"
-                >
-                  <MenuItem value="high">Alta</MenuItem>
-                  <MenuItem value="medium">Média</MenuItem>
-                  <MenuItem value="low">Baixa</MenuItem>
-                </Select>
-              </FormControl>
             </Grid>
           </Grid>
+          <TextField
+            margin="dense"
+            name="location"
+            label="Local"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={newEvent.location}
+            onChange={handleEventChange}
+            sx={{ mb: 2 }}
+          />
+          <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
+            <InputLabel>Prioridade</InputLabel>
+            <Select
+              name="priority"
+              value={newEvent.priority}
+              onChange={handleEventChange}
+              label="Prioridade"
+            >
+              <MenuItem value="high">Alta</MenuItem>
+              <MenuItem value="medium">Média</MenuItem>
+              <MenuItem value="low">Baixa</MenuItem>
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           {selectedEvent && (
@@ -499,7 +546,7 @@ const Calendar = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </CalendarContainer>
+    </Box>
   );
 };
 
