@@ -15,7 +15,8 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: 'static/js/[name].[contenthash:8].js',
     chunkFilename: 'static/js/[name].[contenthash:8].chunk.js',
-    publicPath: '/'
+    publicPath: '/',
+    clean: true
   },
   optimization: {
     minimize: true,
@@ -30,6 +31,8 @@ module.exports = {
             warnings: false,
             comparisons: false,
             inline: 2,
+            drop_console: true,
+            drop_debugger: true
           },
           mangle: {
             safari10: true,
@@ -40,12 +43,29 @@ module.exports = {
             ascii_only: true,
           },
         },
+        parallel: true
       }),
-      new CssMinimizerPlugin(),
+      new CssMinimizerPlugin({
+        minimizerOptions: {
+          preset: [
+            'default',
+            {
+              discardComments: { removeAll: true },
+            },
+          ],
+        },
+      }),
     ],
     splitChunks: {
       chunks: 'all',
       name: false,
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+      },
     },
     runtimeChunk: {
       name: entrypoint => `runtime-${entrypoint.name}`,
@@ -66,12 +86,21 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             presets: ['@babel/preset-env', ['@babel/preset-react', { runtime: 'automatic' }]],
+            cacheDirectory: true
           },
         },
       },
       {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1,
+            },
+          },
+        ],
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
@@ -125,10 +154,17 @@ module.exports = {
     new Dotenv({
       path: './.env.production',
       systemvars: true,
+      safe: false,
+      defaults: true
     }),
   ],
   performance: {
     maxEntrypointSize: 512000,
     maxAssetSize: 512000,
+    hints: 'warning'
   },
+  stats: {
+    errorDetails: true,
+    children: true
+  }
 };
